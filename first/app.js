@@ -1,6 +1,23 @@
-const http = require('http');
-const routes = require('./routes');
+const path = require('path');
+const express = require('express');
 
-const server = http.createServer(routes);
+const adminRoutes = require('./routes/admin');
+const shopRoutes = require('./routes/shop');
 
-server.listen(3000);
+const app = express();
+
+app.use(express.json());
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
+
+app.use(shopRoutes);
+app.use('/admin', adminRoutes);
+
+app.use('/', (req, res, next) => {
+  res.status(404).sendFile(path.join(__dirname, 'views', '404.html'));
+});
+
+app.listen(3000);
