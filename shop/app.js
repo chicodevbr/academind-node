@@ -22,6 +22,15 @@ app.use(
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use((req, res, next) => {
+  User.findByPk(1)
+    .then((user) => {
+      req.user = user;
+      next();
+    })
+    .catch((err) => console.log(err));
+});
+
 app.use(shopRoutes);
 app.use('/admin', adminRoutes);
 
@@ -31,9 +40,21 @@ Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
 User.hasMany(Product);
 
 sequelize
-  .sync({ force: true })
+  .sync()
   .then((result) => {
-    //console.log(result);
-    app.listen(3000);
+    return User.findByPk(1);
+  })
+  .then((user) => {
+    if (!user) {
+      return User.create({ name: 'art', email: 'artvandelay@email.com' });
+    }
+    return Promise.resolve(user);
+  })
+  .then((user) => {
+    //console.log(user);
+
+    app.listen(3000, () => {
+      console.log('Server Running at port 3000');
+    });
   })
   .catch((err) => console.log(err));
