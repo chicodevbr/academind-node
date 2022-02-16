@@ -31,14 +31,13 @@ app.use((req, res, next) => {
 });
 
 //app.use(shopRoutes);
-//app.use('/admin', adminRoutes);
+app.use('/admin', adminRoutes);
 
 app.use(errorController.get404);
 
 const PORT = 3000;
 
-mongoConnect((client) => {
-  console.log(client);
+mongoConnect(() => {
   app.listen(PORT, () => {
     console.log(`Server Running at port ${PORT}`);
   });
