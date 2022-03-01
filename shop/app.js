@@ -5,13 +5,14 @@ const URL = require('./util/user');
 const app = express();
 
 const errorController = require('./controllers/error');
-//const User = require('./models/user');
+const User = require('./models/user');
 
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+const user = require('./models/user');
 
 app.use(express.json());
 app.use(
@@ -22,14 +23,15 @@ app.use(
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// app.use((req, res, next) => {
-//   User.findById('62104b859e0192cfd20e4715')
-//     .then((user) => {
-//       req.user = new User(user.name, user.email, user.cart, user._id);
-//       next();
-//     })
-//     .catch((err) => console.log(err));
-// });
+app.use((req, res, next) => {
+  User.findById('621e37a050c7cc5f8dfc69cb')
+    .then((user) => {
+      req.user = user;
+
+      next();
+    })
+    .catch((err) => console.log(err));
+});
 
 app.use(shopRoutes);
 app.use('/admin', adminRoutes);
@@ -40,9 +42,21 @@ const PORT = 3000;
 
 mongoose
   .connect(URL)
-  .then(
+  .then((result) => {
+    User.findOne().then((user) => {
+      if (!user) {
+        const user = new User({
+          name: 'Artie',
+          email: 'artie@email.com',
+          cart: {
+            items: [],
+          },
+        });
+        user.save();
+      }
+    });
     app.listen(PORT, () => {
       console.log(`Server running at ${PORT}...`);
-    })
-  )
+    });
+  })
   .catch((err) => console.log(err));
