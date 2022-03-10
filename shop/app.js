@@ -12,7 +12,7 @@ app.set('views', 'views');
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
-const user = require('./models/user');
+const authRoutes = require('./routes/auth');
 
 app.use(express.json());
 app.use(
@@ -33,8 +33,9 @@ app.use((req, res, next) => {
     .catch((err) => console.log(err));
 });
 
-app.use(shopRoutes);
 app.use('/admin', adminRoutes);
+app.use(shopRoutes);
+app.use(authRoutes);
 
 app.use(errorController.get404);
 
