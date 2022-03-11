@@ -9,6 +9,8 @@ const app = express();
 const errorController = require('./controllers/error');
 const User = require('./models/user');
 
+const MONGODB_URI = URL;
+
 const store = new MongoDBStore({
   uri: MONGODB_URI,
   collection: 'sessions',
@@ -29,7 +31,6 @@ app.use(
 );
 
 app.use(express.static(path.join(__dirname, 'public')));
-
 app.use(
   session({
     secret: 'my secret',
@@ -40,6 +41,9 @@ app.use(
 );
 
 app.use((req, res, next) => {
+  if (!req.session.user) {
+    return next();
+  }
   User.findById(req.session.user._id)
     .then((user) => {
       req.user = user;
