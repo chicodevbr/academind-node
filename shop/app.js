@@ -2,10 +2,17 @@ const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
 const URL = require('./util/user');
+const session = require('express-session');
+const MongoDBStore = require('connect-mongodb-session')(session);
 const app = express();
 
 const errorController = require('./controllers/error');
 const User = require('./models/user');
+
+const store = new MongoDBStore({
+  uri: MONGODB_URI,
+  collection: 'sessions',
+});
 
 app.set('view engine', 'ejs');
 app.set('views', 'views');
@@ -23,8 +30,17 @@ app.use(
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(
+  session({
+    secret: 'my secret',
+    resave: false,
+    saveUninitialized: false,
+    store: store,
+  })
+);
+
 app.use((req, res, next) => {
-  User.findById('621e37a050c7cc5f8dfc69cb')
+  User.findById(req.session.user._id)
     .then((user) => {
       req.user = user;
 
